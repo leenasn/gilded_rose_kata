@@ -1,40 +1,68 @@
-class GildedRose
-  def self.item_for(name, quality, sell_in)
-    Object.const_get(name).new(quality, sell_in)
-  end
-end
+require 'test/unit'
+require_relative 'gilded_rose'
 
-class Item
-  attr_accessor :sell_in, :quality
+class GildedRoseTest < Test::Unit::TestCase
+  def test_lower_sell_within_date_by_one
+    item = GildedRose.item_for("Normal", 10, 10)
 
-  def initialize(sell_in, quality)
-    @sell_in = sell_in
-    @quality = quality
+    item.update_quality
+
+    assert_equal(9, item.sell_in)
   end
 
-end
+  def test_lower_quality_by_one
+    item = GildedRose.item_for("Normal", 10, 10)
 
-class Normal < Item
-  def update_quality
-    @sell_in -= 1
-    @quality -= 1 if @sell_in > 0
+    item.update_quality
 
-    @quality -= 2 if @sell_in <= 0
-
-    @quality = 50 if @quality > 50
-
-    @quality = 0 if @quality <= 0
+    assert_equal(9, item.quality)
   end
-end
 
-class AgedBrie < Item
-  def update_quality
-    @sell_in -= 1
-    @quality += 1
+  def test_lower_quality_by_two_if_sell_in_date_is_reached
+    item = GildedRose.item_for("Normal", 0, 10)
+
+    item.update_quality
+
+    assert_equal(8, item.quality)
   end
-end
 
-class Sulfuras < Item
-  def update_quality
+  def test_quality_never_negative_when_decreased
+    item = GildedRose.item_for("Normal", 0, 0)
+
+    item.update_quality
+
+    assert_equal(0, item.quality)
+  end
+
+  def test_quality_never_greater_than_fifty
+    item = GildedRose.item_for("Normal", 10, 60)
+
+    item.update_quality
+
+    assert_equal(50, item.quality)
+  end
+
+  def test_aged_brie_increases_quality_as_it_gets_older
+    item = GildedRose.item_for("AgedBrie", 10, 10)
+
+    item.update_quality
+
+    assert_equal(11, item.quality)
+  end
+
+  def test_sulfuras_never_gets_sold
+    item = GildedRose.item_for("Sulfuras", 10, 10)
+
+    item.update_quality
+
+    assert_equal(10, item.sell_in)
+  end
+
+  def test_sulfuras_never_gets_older
+    item = GildedRose.item_for("Sulfuras", 10, 10)
+
+    item.update_quality
+
+    assert_equal(10, item.quality)
   end
 end

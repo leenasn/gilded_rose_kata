@@ -1,65 +1,61 @@
-def update_quality(items)
-  items.each do |item|
-    if item.name != 'Aged Brie'
-      if item.quality > 0
-        if item.name != 'Sulfuras, Hand of Ragnaros'
-          item.quality -= 1
-        end
-      end
-    else
-      if item.quality < 50
-        item.quality += 1
-        if item.name == 'Backstage passes to a TAFKAL80ETC concert'
-          if item.sell_in < 11
-            if item.quality < 50
-              item.quality += 1
-            end
-          end
-          if item.sell_in < 6
-            if item.quality < 50
-              item.quality += 1
-            end
-          end
-        end
-      end
-    end
-    if item.name != 'Sulfuras, Hand of Ragnaros'
-      item.sell_in -= 1
-    end
-    if item.sell_in < 0
-      if item.name != "Aged Brie"
-        if item.quality > 0
-          if item.name != 'Sulfuras, Hand of Ragnaros'
-            item.quality -= 1
-          end
-        end
-      else
-        if item.quality < 50
-          item.quality += 1
-        end
-      end
-    end
+class GildedRose
+  def self.create_item(name: "Normal", quality:, sell_within_date: )
+    Object.const_get(name).new(quality: quality, sell_within_date: sell_within_date)
   end
 end
 
-def update_quality_for_normal_item(item)
-  item.sell_in -= 1
-  return if item.quality.zero?
-  item.quality -= 2 if item.sell_in <= 0
-  item.quality -= 1 if item.sell_in > 0
+class Item
+  attr_reader :sell_within_date, :quality
+
+  MAX_VALUE = 50
+
+  def initialize(quality:, sell_within_date:)
+    @sell_within_date = sell_within_date
+    @quality = quality
+    set_quality_to_max_value_if_greater
+  end
+
+  def lower_sell_within_date
+    @sell_within_date -= 1
+    lower_quality(2) if value_less_than_or_equal_to_zero?(@sell_within_date)
+  end
+
+  def lower_quality(val = 1)
+    @quality -= val
+    @quality = 0 if value_less_than_or_equal_to_zero?(@quality)
+  end
+
+  private
+
+  def value_less_than_or_equal_to_zero?(val)
+    val <= 0
+  end
+
+  def set_quality_to_max_value_if_greater
+    @quality = MAX_VALUE if quality > MAX_VALUE
+  end
 end
 
-# DO NOT CHANGE THINGS BELOW -----------------------------------------
+class Normal < Item
+end
 
-Item = Struct.new(:name, :sell_in, :quality)
+class AgedBrie < Item
 
-# We use the setup in the spec rather than the following for testing.
-#
-# Items = [
-#   Item.new("+5 Dexterity Vest", 10, 20),
-#   Item.new("Aged Brie", 2, 0),
-#   Item.new("Elixir of the Mongoose", 5, 7),
-#   Item.new("Sulfuras, Hand of Ragnaros", 0, 80),
-#   Item.new("Backstage passes to a TAFKAL80ETC concert", 15, 20),
-#   Item.new("Conjured Mana Cake", 3, 6),
-# ]
+  def lower_sell_within_date
+    super
+    increase_quality
+  end
+
+  def increase_quality
+    @quality += 1
+  end
+end
+
+class Sulfuras < Item
+
+  def lower_sell_within_date
+  end
+
+  def lower_quality
+  end
+end

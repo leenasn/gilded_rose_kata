@@ -33,14 +33,6 @@ class GildedRoseTest < Test::Unit::TestCase
 
     assert_equal(0, item.quality)
   end
-  #
-  def test_quality_never_negative_when_sell_in_date_approached
-    item = Item.new("Normal", 0, 0)
-
-    GildedRose.new([item]).update_quality
-
-    assert_equal(0, item.quality)
-  end
 
   def test_quality_never_greater_than_fifty
     item = Item.new("Normal", 10, 60)

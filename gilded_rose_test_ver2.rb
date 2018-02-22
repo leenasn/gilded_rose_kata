@@ -43,7 +43,7 @@ class GildedRoseTest < Test::Unit::TestCase
   end
 
   def test_aged_brie_increases_quality_as_it_gets_older
-    item = Item.new("Aged Brie", 10, 10)
+    item = Item.new("AgedBrie", 10, 10)
 
     GildedRose.new([item]).update_quality
 
